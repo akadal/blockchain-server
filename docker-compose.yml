@@ -26,13 +26,11 @@ services:
     image: alethio/ethereum-lite-explorer:latest
     container_name: eth-explorer
     environment:
-      - APP_NODE_URL=http://host.docker.internal:8545
+      - APP_NODE_URL=http://146.190.176.30:8545
     ports:
       - "8080:80"
     depends_on:
       - ethereum
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
       
   # Faucet - Web UI to distribute test ETH to students
   faucet:
@@ -48,7 +46,7 @@ services:
       FUND_ADDRESS: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1"
       FAUCET_NAME: "Akadal Chain Faucet"
       FAUCET_DESCRIPTION: "Blockchain course test tokens"
-      EXPLORER_URL: "http://localhost:8080"
+      EXPLORER_URL: "http://146.190.176.30:8080"
     ports:
       - "3000:3000"
     depends_on:
