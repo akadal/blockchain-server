@@ -1,0 +1,15 @@
+{
+  "name": "akadal-chain",
+  "version": "1.0.0",
+  "description": "Akadal Chain Educational Blockchain Environment",
+  "main": "auto-fund.js",
+  "scripts": {
+    "start": "node auto-fund.js",
+    "fund": "node auto-fund.js"
+  },
+  "dependencies": {
+    "web3": "^1.8.1"
+  },
+  "author": "Assoc. Prof. Dr. Emre Akadal",
+  "license": "MIT"
+} 
