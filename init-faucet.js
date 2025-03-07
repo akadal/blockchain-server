@@ -1,4 +1,4 @@
-const Web3 = require('web3');
+const { Web3 } = require('web3');
 
 // Configuration
 const rpcUrl = 'http://localhost:8545';
@@ -34,10 +34,13 @@ async function initFaucet() {
     
     // Import faucet account to node
     try {
-      await web3.eth.personal.importRawKey(faucetPrivateKey.substring(2), "");
-      console.log(`✅ Imported faucet account to node: ${faucetAddress}`);
+      // Note: personal.importRawKey is not directly supported in web3.js v4
+      // We'll use a different approach
+      const account = web3.eth.accounts.privateKeyToAccount(faucetPrivateKey);
+      web3.eth.accounts.wallet.add(account);
+      console.log(`✅ Added faucet account to wallet: ${faucetAddress}`);
     } catch (error) {
-      console.log(`Note: Faucet account may already be imported: ${error.message}`);
+      console.log(`Note: Issue with faucet account: ${error.message}`);
     }
     
     // Send ETH to faucet account

@@ -8,7 +8,7 @@
     "fund": "node auto-fund.js"
   },
   "dependencies": {
-    "web3": "^1.8.1"
+    "web3": "^4.3.0"
   },
   "author": "Assoc. Prof. Dr. Emre Akadal",
   "license": "MIT"

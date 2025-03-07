@@ -81,6 +81,34 @@ Once the system is running, you can access the following services:
    - Use tools like Remix IDE connected to your local node
    - Monitor blockchain activity in the explorer
 
+### Using Remix with Akadal Chain
+
+1. **Connect Remix to Akadal Chain**
+   - Open Remix IDE: https://remix.ethereum.org/
+   - Go to the "Deploy & Run Transactions" tab
+   - In the "Environment" dropdown, select "Injected Provider - MetaMask"
+   - Make sure your MetaMask is connected to Akadal Chain
+   - Alternatively, you can select "Web3 Provider" and enter the RPC URL: http://localhost:8545
+
+2. **Deploy Smart Contracts**
+   - Write or import your smart contract in Remix
+   - Compile the contract
+   - In the "Deploy & Run Transactions" tab, select your contract
+   - Click "Deploy" to deploy the contract to Akadal Chain
+   - Confirm the transaction in MetaMask
+
+3. **Interact with Deployed Contracts**
+   - After deployment, your contract will appear under "Deployed Contracts"
+   - You can interact with your contract functions directly from Remix
+   - All transactions will be processed on Akadal Chain
+
+4. **Troubleshooting Remix Connection**
+   - If you encounter issues connecting Remix to Akadal Chain:
+     - Ensure MetaMask is properly connected to Akadal Chain
+     - Try using "Web3 Provider" instead of "Injected Provider"
+     - Check that the Ethereum node is running and accessible
+     - Verify CORS settings are properly configured in the Ethereum node
+
 ### For Instructors
 
 1. **Monitor System Status**
@@ -140,6 +168,13 @@ Once the system is running, you can access the following services:
    - Check faucet logs: `docker-compose logs -f faucet`
    - Verify that the Ethereum node is accessible from the faucet container
    - Restart the faucet: `docker-compose restart faucet`
+
+4. **Remix cannot connect to the blockchain**
+   - Ensure MetaMask is properly connected to Akadal Chain
+   - Try using "Web3 Provider" in Remix instead of "Injected Provider"
+   - Check that the Ethereum node is running with proper CORS settings
+   - Verify the RPC endpoint is accessible from your browser
+   - Try restarting the Ethereum node: `docker-compose restart ethereum`
 
 ## Cross-Platform Compatibility
 
@@ -245,6 +280,34 @@ Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsini
    - Yerel düğümünüze bağlı Remix IDE gibi araçları kullanın
    - Gezginde blockchain aktivitesini izleyin
 
+### Remix'i Akadal Chain ile Kullanma
+
+1. **Remix'i Akadal Chain'e Bağlama**
+   - Remix IDE'yi açın: https://remix.ethereum.org/
+   - "Deploy & Run Transactions" sekmesine gidin
+   - "Environment" açılır menüsünden "Injected Provider - MetaMask"ı seçin
+   - MetaMask'ınızın Akadal Chain'e bağlı olduğundan emin olun
+   - Alternatif olarak, "Web3 Provider"ı seçebilir ve RPC URL'sini girebilirsiniz: http://localhost:8545
+
+2. **Akıllı Sözleşmeleri Dağıtma**
+   - Akıllı sözleşmenizi Remix'te yazın veya içe aktarın
+   - Sözleşmeyi derleyin
+   - "Deploy & Run Transactions" sekmesinde sözleşmenizi seçin
+   - Sözleşmeyi Akadal Chain'e dağıtmak için "Deploy"a tıklayın
+   - İşlemi MetaMask'ta onaylayın
+
+3. **Dağıtılmış Sözleşmelerle Etkileşim**
+   - Dağıtımdan sonra, sözleşmeniz "Deployed Contracts" altında görünecektir
+   - Sözleşme fonksiyonlarınızla doğrudan Remix'ten etkileşime geçebilirsiniz
+   - Tüm işlemler Akadal Chain üzerinde işlenecektir
+
+4. **Remix Bağlantı Sorunlarını Giderme**
+   - Remix'i Akadal Chain'e bağlarken sorunlarla karşılaşırsanız:
+     - MetaMask'ın Akadal Chain'e düzgün şekilde bağlandığından emin olun
+     - "Injected Provider" yerine "Web3 Provider" kullanmayı deneyin
+     - Ethereum düğümünün çalıştığından ve erişilebilir olduğundan emin olun
+     - CORS ayarlarının Ethereum düğümünde doğru yapılandırıldığını doğrulayın
+
 ### Eğitmenler İçin
 
 1. **Sistem Durumunu İzleyin**
@@ -304,6 +367,13 @@ Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsini
    - Faucet loglarını kontrol edin: `docker-compose logs -f faucet`
    - Ethereum düğümünün faucet container'ından erişilebilir olduğunu doğrulayın
    - Faucet'i yeniden başlatın: `docker-compose restart faucet`
+
+4. **Remix blockchain'e bağlanamıyor**
+   - MetaMask'ın Akadal Chain'e düzgün şekilde bağlandığından emin olun
+   - Remix'te "Injected Provider" yerine "Web3 Provider" kullanmayı deneyin
+   - Ethereum düğümünün uygun CORS ayarlarıyla çalıştığını kontrol edin
+   - RPC uç noktasının tarayıcınızdan erişilebilir olduğunu doğrulayın
+   - Ethereum düğümünü yeniden başlatmayı deneyin: `docker-compose restart ethereum`
 
 ## Çapraz Platform Uyumluluğu
 

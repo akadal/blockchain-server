@@ -1,4 +1,4 @@
-const Web3 = require('web3');
+const { Web3 } = require('web3');
 
 // Configuration
 const rpcUrl = 'http://localhost:8545';
@@ -21,7 +21,7 @@ async function fundFaucet() {
     console.log(`Current faucet balance: ${balanceEth} ETH`);
     
     // If balance is below threshold, send more ETH
-    if (Number(balanceEth) < 5000000000) {
+    if (BigInt(balance) < BigInt(web3.utils.toWei('5000000000', 'ether'))) {
       console.log(`Faucet balance is below threshold. Sending ${amountToSend} ETH...`);
       
       const tx = await web3.eth.sendTransaction({

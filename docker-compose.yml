@@ -3,21 +3,25 @@ version: '3'
 services:
   # Ethereum Node - Fast dev chain with preloaded ETH
   ethereum:
-    image: ethereum/client-go:v1.10.26
+    image: ethereum/client-go:stable
     container_name: ethereum-node
     command:
       - --dev
-      - --dev.period=0
       - --http
       - --http.addr=0.0.0.0
       - --http.api=eth,net,web3,personal,miner,admin,debug,txpool
       - --http.corsdomain=*
       - --http.vhosts=*
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.origins=*
+      - --ws.api=eth,net,web3,personal,miner,admin,debug,txpool
       - --networkid=1337
-      - --mine
-      - --miner.threads=1
+      - --allow-insecure-unlock
+      - --rpc.allow-unprotected-txs
     ports:
       - "8545:8545"  # HTTP RPC
+      - "8546:8546"  # WS RPC
     volumes:
       - geth-data:/root/.ethereum
       

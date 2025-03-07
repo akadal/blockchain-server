@@ -1,5 +1,5 @@
 const express = require('express');
-const Web3 = require('web3');
+const { Web3 } = require('web3');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -22,7 +22,8 @@ const creatorUrl = process.env.CREATOR_URL || 'https://akadal.tr';
 const web3 = new Web3(rpcUrl);
 const account = web3.eth.accounts.privateKeyToAccount(privateKey);
 web3.eth.accounts.wallet.add(account);
-web3.eth.defaultAccount = account.address;
+// defaultAccount is deprecated in Web3.js v4, but we'll keep track of our account
+const defaultAccount = account.address;
 
 // Middleware
 app.use(cors());
@@ -64,7 +65,7 @@ app.post('/api/send', async (req, res) => {
     
     const sendAmount = web3.utils.toWei(ethAmount, 'ether');
     
-    if (Number(balance) < Number(sendAmount)) {
+    if (BigInt(balance) < BigInt(sendAmount)) {
       return res.status(400).json({
         success: false,
         message: `Faucet balance too low (${balanceEth} ETH). Please contact administrator.`
@@ -83,7 +84,7 @@ app.post('/api/send', async (req, res) => {
       success: true, 
       message: `${ethAmount} ETH has been sent to your wallet!`,
       txHash: tx.transactionHash,
-      explorerUrl: `${explorerUrl.replace('blockscout', 'localhost')}/tx/${tx.transactionHash}`
+      explorerUrl: `${explorerUrl}/tx/${tx.transactionHash}`
     });
   } catch (error) {
     console.error('Error sending ETH:', error);

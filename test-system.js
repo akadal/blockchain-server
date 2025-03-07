@@ -1,10 +1,10 @@
-const Web3 = require('web3');
+const { Web3 } = require('web3');
 const axios = require('axios');
 
 // Configuration
 const rpcUrl = 'http://localhost:8545';
 const faucetUrl = 'http://localhost:3000';
-const explorerUrl = 'http://localhost:4000';
+const explorerUrl = 'http://localhost:8080';
 
 async function testSystem() {
   console.log('Testing Akadal Chain Educational Blockchain Environment...');
@@ -51,14 +51,14 @@ async function testSystem() {
     console.error(`   Error: ${error.message}`);
   }
 
-  // Test 3: Check if BlockScout Explorer is running
-  console.log('\n3. Testing BlockScout Explorer...');
+  // Test 3: Check if Explorer is running
+  console.log('\n3. Testing Ethereum Explorer...');
   try {
     const response = await axios.get(explorerUrl);
-    console.log('✅ BlockScout Explorer is running!');
+    console.log('✅ Ethereum Explorer is running!');
     console.log(`   Explorer URL: ${explorerUrl}`);
   } catch (error) {
-    console.log('❌ Failed to connect to BlockScout Explorer!');
+    console.log('❌ Failed to connect to Ethereum Explorer!');
     console.error(`   Error: ${error.message}`);
   }
 
