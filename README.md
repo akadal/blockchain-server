@@ -22,8 +22,8 @@ This repository contains a simple educational blockchain environment with an Eth
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/akadal-chain.git
-   cd akadal-chain
+   git clone https://github.com/akadal/blockchain-server.git
+   cd blockchain-server
    ```
 
 2. Start the system:
@@ -150,6 +150,10 @@ This system is designed to work on both Windows and Linux/Mac environments:
 
 The core functionality is identical across platforms, with only the shell scripts differing to accommodate platform-specific requirements.
 
+## Repository
+
+The official repository for this project is available at: [https://github.com/akadal/blockchain-server](https://github.com/akadal/blockchain-server)
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -182,8 +186,8 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
 
 1. Bu depoyu klonlayın:
    ```
-   git clone https://github.com/yourusername/akadal-chain.git
-   cd akadal-chain
+   git clone https://github.com/akadal/blockchain-server.git
+   cd blockchain-server
    ```
 
 2. Sistemi başlatın:
@@ -309,6 +313,10 @@ Bu sistem hem Windows hem de Linux/Mac ortamlarında çalışacak şekilde tasar
 - **Linux/Mac**: Sistemi başlatmak ve yönetmek için `.sh` dosyalarını kullanın
 
 Temel işlevsellik tüm platformlarda aynıdır, yalnızca kabuk komut dosyaları platforma özgü gereksinimlere uyum sağlamak için farklılık gösterir.
+
+## Depo
+
+Bu projenin resmi deposu şu adreste mevcuttur: [https://github.com/akadal/blockchain-server](https://github.com/akadal/blockchain-server)
 
 ## Lisans
 
