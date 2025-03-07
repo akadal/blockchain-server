@@ -36,6 +36,49 @@ services:
     depends_on:
       - ethereum
       
+  # Blockscout Explorer - Advanced explorer with smart contract interaction
+  blockscout:
+    image: blockscout/blockscout:latest
+    container_name: blockscout-explorer
+    restart: always
+    depends_on:
+      - ethereum
+      - postgres
+    environment:
+      ETHEREUM_JSONRPC_VARIANT: 'geth'
+      ETHEREUM_JSONRPC_HTTP_URL: http://ethereum:8545
+      ETHEREUM_JSONRPC_WS_URL: ws://ethereum:8546
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/blockscout
+      ECTO_USE_SSL: 'false'
+      SECRET_KEY_BASE: "56NtB48ear7+wMSf0IQuWDAAazhpb31qyc7GiyspBP2vh7t5zlCsF5QDv76chXeN"
+      PORT: 4000
+      COIN: "ETH"
+      NETWORK: "Akadal Chain"
+      SUBNETWORK: "Blockchain Course"
+      LOGO: "/images/blockscout_logo.svg"
+      CHAIN_ID: 1337
+    ports:
+      - "4000:4000"
+      
+  # Database for Blockscout Explorer
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: blockscout
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
   # Faucet - Web UI to distribute test ETH to students
   faucet:
     build:
@@ -51,10 +94,12 @@ services:
       FAUCET_NAME: "Akadal Chain Faucet"
       FAUCET_DESCRIPTION: "Blockchain course test tokens"
       EXPLORER_URL: "http://146.190.176.30:8080"
+      BLOCKSCOUT_URL: "http://146.190.176.30:4000"
     ports:
       - "3000:3000"
     depends_on:
       - ethereum
 
 volumes:
-  geth-data: 
+  geth-data:
+  postgres-data: 

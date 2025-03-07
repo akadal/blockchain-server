@@ -10,7 +10,8 @@ const port = process.env.PORT || 3000;
 // Environment variables with defaults
 const rpcUrl = process.env.RPC_URL || 'http://ethereum:8545';
 const chainId = process.env.CHAIN_ID || '1337';
-const explorerUrl = process.env.EXPLORER_URL || 'http://localhost:4000';
+const explorerUrl = process.env.EXPLORER_URL || 'http://localhost:8080';
+const blockscoutUrl = process.env.BLOCKSCOUT_URL || 'http://localhost:4000';
 const ethAmount = process.env.ETH_AMOUNT || '100';
 const privateKey = process.env.FUND_PRIVATE_KEY || '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
 const faucetName = process.env.FAUCET_NAME || 'Akadal Chain Faucet';
@@ -37,7 +38,8 @@ app.get('/api/info', (req, res) => {
     description: faucetDesc,
     rpcUrl: rpcUrl.replace('ethereum', 'localhost'),
     chainId: chainId,
-    explorerUrl: explorerUrl.replace('blockscout', 'localhost'),
+    explorerUrl: explorerUrl,
+    blockscoutUrl: blockscoutUrl,
     ethAmount: ethAmount,
     faucetAddress: account.address,
     creator: {
@@ -84,7 +86,8 @@ app.post('/api/send', async (req, res) => {
       success: true, 
       message: `${ethAmount} ETH has been sent to your wallet!`,
       txHash: tx.transactionHash,
-      explorerUrl: `${explorerUrl}/tx/${tx.transactionHash}`
+      explorerUrl: `${explorerUrl}/tx/${tx.transactionHash}`,
+      blockscoutUrl: `${blockscoutUrl}/tx/${tx.transactionHash}`
     });
   } catch (error) {
     console.error('Error sending ETH:', error);
@@ -427,6 +430,12 @@ const htmlContent = `
                       <a id="explorer-url" href="#" target="_blank">Block Explorer</a>
                     </div>
                 </div>
+                <div class="network-param">
+                    <div class="param-name">Blockscout:</div>
+                    <div class="param-value">
+                      <a id="blockscout-url" href="#" target="_blank">Smart Contract Explorer</a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -464,6 +473,10 @@ const htmlContent = `
                 const explorerLink = document.getElementById('explorer-url');
                 explorerLink.href = info.explorerUrl;
                 explorerLink.textContent = 'Block Explorer';
+                
+                const blockscoutLink = document.getElementById('blockscout-url');
+                blockscoutLink.href = info.blockscoutUrl;
+                blockscoutLink.textContent = 'Smart Contract Explorer';
                 
                 const creatorLink = document.getElementById('creator-link');
                 creatorLink.href = info.creator.url;
@@ -506,7 +519,8 @@ const htmlContent = `
                     
                     if (result.success) {
                         statusMessage.innerHTML = 'Success! ' + result.message + 
-                            '<br><a href="' + result.explorerUrl + '" target="_blank">View transaction</a>';
+                            '<br><a href="' + result.explorerUrl + '" target="_blank">View transaction in Block Explorer</a>' +
+                            '<br><a href="' + result.blockscoutUrl + '" target="_blank">View transaction in Blockscout</a>';
                         statusMessage.className = 'status success';
                     } else {
                         statusMessage.textContent = 'Error: ' + result.message;

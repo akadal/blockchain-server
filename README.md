@@ -7,8 +7,9 @@ This repository contains a simple educational blockchain environment with an Eth
 ## System Components
 
 1. **Ethereum Node (Geth)**: A full-featured EVM-compatible blockchain
-2. **Ethereum Explorer**: A simple explorer to view blockchain activity
-3. **Custom Faucet**: A web UI to distribute test ETH to students
+2. **Ethereum Lite Explorer**: A simple explorer to view blockchain activity
+3. **Blockscout Explorer**: An advanced explorer with smart contract interaction capabilities
+4. **Custom Faucet**: A web UI to distribute test ETH to students
 
 ## Quick Start
 
@@ -49,7 +50,8 @@ This repository contains a simple educational blockchain environment with an Eth
 Once the system is running, you can access the following services:
 
 - **Faucet**: http://localhost:3000
-- **Network Explorer**: http://localhost:8080
+- **Ethereum Lite Explorer**: http://localhost:8080
+- **Blockscout Explorer**: http://localhost:4000
 - **Ethereum RPC**: http://localhost:8545
 
 ## Usage Instructions
@@ -74,12 +76,13 @@ Once the system is running, you can access the following services:
 3. **Verify Receipt of Tokens**
    - Open MetaMask to see your test ETH balance
    - Check the explorer (http://localhost:8080) to view network activity
+   - Alternatively, use Blockscout Explorer (http://localhost:4000)
 
 4. **Interact with the Chain**
    - Deploy and test smart contracts
    - Execute transactions
    - Use tools like Remix IDE connected to your local node
-   - Monitor blockchain activity in the explorer
+   - Monitor blockchain activity in the explorers
 
 ### Using Remix with Akadal Chain
 
@@ -102,19 +105,46 @@ Once the system is running, you can access the following services:
    - You can interact with your contract functions directly from Remix
    - All transactions will be processed on Akadal Chain
 
-4. **Troubleshooting Remix Connection**
-   - If you encounter issues connecting Remix to Akadal Chain:
-     - Ensure MetaMask is properly connected to Akadal Chain
-     - Try using "Web3 Provider" instead of "Injected Provider"
-     - Check that the Ethereum node is running and accessible
-     - Verify CORS settings are properly configured in the Ethereum node
+### Using Blockscout Explorer for Smart Contract Interaction
+
+1. **Access Blockscout Explorer**
+   - Navigate to http://localhost:4000
+   - You'll see a comprehensive blockchain explorer with advanced features
+
+2. **Connect Your Wallet**
+   - Click on "Connect Wallet" in the top right corner
+   - Select MetaMask and approve the connection
+   - Ensure your MetaMask is connected to Akadal Chain
+
+3. **View and Interact with Smart Contracts**
+   - Find your deployed contract by searching for its address
+   - On the contract page, you'll see:
+     - Contract code and verification status
+     - Read and write functions that you can interact with
+     - All transactions related to the contract
+     - Token information (if it's a token contract)
+
+4. **Execute Contract Functions**
+   - For read functions: simply click on the function and view the results
+   - For write functions: 
+     - Fill in the required parameters
+     - Click "Write"
+     - Confirm the transaction in MetaMask
+     - Wait for the transaction to be processed
+
+5. **Verify Smart Contracts**
+   - Click on "Verify & Publish" on your contract's page
+   - Upload your contract source code or input it directly
+   - Provide compilation details (compiler version, optimization, etc.)
+   - Submit for verification
+   - Once verified, all contract functions will be labeled and documented
 
 ### For Instructors
 
 1. **Monitor System Status**
    - Check container status: `docker-compose ps`
    - View logs: `docker-compose logs -f [service]`
-   - Monitor blockchain activity through the explorer (http://localhost:8080)
+   - Monitor blockchain activity through the explorers (http://localhost:8080 and http://localhost:4000)
 
 2. **Manage Faucet Funds**
    - The faucet is automatically funded during system startup
@@ -152,9 +182,9 @@ Once the system is running, you can access the following services:
    - Verify that all required ports are available
 
 2. **Explorer not showing data**
-   - It may take a few minutes for the explorer to connect to the Ethereum node
-   - Check explorer logs: `docker-compose logs -f explorer`
-   - Restart the explorer: `docker-compose restart explorer`
+   - It may take a few minutes for the explorers to connect to the Ethereum node
+   - Check explorer logs: `docker-compose logs -f explorer` or `docker-compose logs -f blockscout`
+   - Restart the explorers: `docker-compose restart explorer` or `docker-compose restart blockscout`
 
 3. **Faucet not sending ETH ("Faucet balance too low" error)**
    - Run the infinite funding service:
@@ -175,6 +205,12 @@ Once the system is running, you can access the following services:
    - Check that the Ethereum node is running with proper CORS settings
    - Verify the RPC endpoint is accessible from your browser
    - Try restarting the Ethereum node: `docker-compose restart ethereum`
+
+5. **Blockscout Explorer issues**
+   - The initial indexing may take some time
+   - If the explorer is not showing data, check the logs: `docker-compose logs -f blockscout`
+   - Ensure the PostgreSQL database is running: `docker-compose logs -f postgres`
+   - Restart Blockscout if needed: `docker-compose restart blockscout`
 
 ## Cross-Platform Compatibility
 
@@ -206,8 +242,9 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
 ## Sistem Bileşenleri
 
 1. **Ethereum Düğümü (Geth)**: Tam özellikli EVM uyumlu blockchain
-2. **Ethereum Gezgini**: Blockchain aktivitesini görüntülemek için basit bir gezgin
-3. **Özel Faucet**: Öğrencilere test ETH dağıtmak için web arayüzü
+2. **Ethereum Lite Explorer**: Blockchain aktivitesini görüntülemek için basit bir gezgin
+3. **Blockscout Explorer**: Akıllı kontratlarla etkileşim kurma özelliklerine sahip gelişmiş bir gezgin
+4. **Özel Faucet**: Öğrencilere test ETH dağıtmak için web arayüzü
 
 ## Hızlı Başlangıç
 
@@ -248,7 +285,8 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
 Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsiniz:
 
 - **Faucet**: http://localhost:3000
-- **Ağ Gezgini**: http://localhost:8080
+- **Ethereum Lite Explorer**: http://localhost:8080
+- **Blockscout Explorer**: http://localhost:4000
 - **Ethereum RPC**: http://localhost:8545
 
 ## Kullanım Talimatları
@@ -273,12 +311,13 @@ Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsini
 3. **Token Alımını Doğrulayın**
    - Test ETH bakiyenizi görmek için MetaMask'ı açın
    - Ağ aktivitesini görüntülemek için gezgini kontrol edin (http://localhost:8080)
+   - Alternatif olarak, Blockscout Explorer'ı kullanın (http://localhost:4000)
 
 4. **Zincir ile Etkileşime Geçin**
    - Akıllı sözleşmeler dağıtın ve test edin
    - İşlemler gerçekleştirin
    - Yerel düğümünüze bağlı Remix IDE gibi araçları kullanın
-   - Gezginde blockchain aktivitesini izleyin
+   - Gezginlerde blockchain aktivitesini izleyin
 
 ### Remix'i Akadal Chain ile Kullanma
 
@@ -301,19 +340,46 @@ Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsini
    - Sözleşme fonksiyonlarınızla doğrudan Remix'ten etkileşime geçebilirsiniz
    - Tüm işlemler Akadal Chain üzerinde işlenecektir
 
-4. **Remix Bağlantı Sorunlarını Giderme**
-   - Remix'i Akadal Chain'e bağlarken sorunlarla karşılaşırsanız:
-     - MetaMask'ın Akadal Chain'e düzgün şekilde bağlandığından emin olun
-     - "Injected Provider" yerine "Web3 Provider" kullanmayı deneyin
-     - Ethereum düğümünün çalıştığından ve erişilebilir olduğundan emin olun
-     - CORS ayarlarının Ethereum düğümünde doğru yapılandırıldığını doğrulayın
+### Blockscout Explorer ile Akıllı Kontrat Etkileşimi
+
+1. **Blockscout Explorer'a Erişim**
+   - http://localhost:4000 adresine gidin
+   - Gelişmiş özelliklere sahip kapsamlı bir blockchain gezgini göreceksiniz
+
+2. **Cüzdanınızı Bağlayın**
+   - Sağ üst köşedeki "Connect Wallet" düğmesine tıklayın
+   - MetaMask'ı seçin ve bağlantıyı onaylayın
+   - MetaMask'ınızın Akadal Chain'e bağlı olduğundan emin olun
+
+3. **Akıllı Kontratları Görüntüleyin ve Etkileşime Geçin**
+   - Dağıtılmış kontratınızı adresini arayarak bulun
+   - Kontrat sayfasında şunları göreceksiniz:
+     - Kontrat kodu ve doğrulama durumu
+     - Etkileşime geçebileceğiniz okuma ve yazma fonksiyonları
+     - Kontratla ilgili tüm işlemler
+     - Token bilgileri (eğer bir token kontratıysa)
+
+4. **Kontrat Fonksiyonlarını Çalıştırın**
+   - Okuma fonksiyonları için: fonksiyona tıklayın ve sonuçları görüntüleyin
+   - Yazma fonksiyonları için: 
+     - Gerekli parametreleri doldurun
+     - "Write" düğmesine tıklayın
+     - İşlemi MetaMask'ta onaylayın
+     - İşlemin işlenmesini bekleyin
+
+5. **Akıllı Kontratları Doğrulayın**
+   - Kontrat sayfanızda "Verify & Publish" düğmesine tıklayın
+   - Kontrat kaynak kodunuzu yükleyin veya doğrudan girin
+   - Derleme detaylarını sağlayın (derleyici sürümü, optimizasyon, vb.)
+   - Doğrulama için gönderin
+   - Doğrulandıktan sonra, tüm kontrat fonksiyonları etiketlenecek ve belgelenecektir
 
 ### Eğitmenler İçin
 
 1. **Sistem Durumunu İzleyin**
    - Container durumunu kontrol edin: `docker-compose ps`
    - Logları görüntüleyin: `docker-compose logs -f [servis]`
-   - Gezgin aracılığıyla blockchain aktivitesini izleyin (http://localhost:8080)
+   - Gezginler aracılığıyla blockchain aktivitesini izleyin (http://localhost:8080 ve http://localhost:4000)
 
 2. **Faucet Fonlarını Yönetin**
    - Faucet, sistem başlangıcında otomatik olarak fonlanır
@@ -351,9 +417,9 @@ Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsini
    - Gerekli portların kullanılabilir olduğunu doğrulayın
 
 2. **Gezgin veri göstermiyor**
-   - Gezginin Ethereum düğümüne bağlanması birkaç dakika sürebilir
-   - Gezgin loglarını kontrol edin: `docker-compose logs -f explorer`
-   - Gezgini yeniden başlatın: `docker-compose restart explorer`
+   - Gezginlerin Ethereum düğümüne bağlanması birkaç dakika sürebilir
+   - Gezgin loglarını kontrol edin: `docker-compose logs -f explorer` veya `docker-compose logs -f blockscout`
+   - Gezginleri yeniden başlatın: `docker-compose restart explorer` veya `docker-compose restart blockscout`
 
 3. **Faucet ETH göndermiyor ("Faucet balance too low" hatası)**
    - Sonsuz fonlama servisini çalıştırın:
@@ -374,6 +440,12 @@ Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsini
    - Ethereum düğümünün uygun CORS ayarlarıyla çalıştığını kontrol edin
    - RPC uç noktasının tarayıcınızdan erişilebilir olduğunu doğrulayın
    - Ethereum düğümünü yeniden başlatmayı deneyin: `docker-compose restart ethereum`
+
+5. **Blockscout Explorer sorunları**
+   - İlk indeksleme biraz zaman alabilir
+   - Gezgin veri göstermiyorsa, logları kontrol edin: `docker-compose logs -f blockscout`
+   - PostgreSQL veritabanının çalıştığından emin olun: `docker-compose logs -f postgres`
+   - Gerekirse Blockscout'u yeniden başlatın: `docker-compose restart blockscout`
 
 ## Çapraz Platform Uyumluluğu
 
