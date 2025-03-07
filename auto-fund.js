@@ -3,7 +3,7 @@ const Web3 = require('web3');
 // Configuration
 const rpcUrl = 'http://localhost:8545';
 const faucetAddress = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1';
-const amountToSend = '10000000000'; // 10000 ETH
+const amountToSend = '10000000000'; // 10 billion ETH
 const checkInterval = 60000; // 1 minute
 
 // Connect to Ethereum node
@@ -21,7 +21,7 @@ async function fundFaucet() {
     console.log(`Current faucet balance: ${balanceEth} ETH`);
     
     // If balance is below threshold, send more ETH
-    if (Number(balanceEth) < 5000) {
+    if (Number(balanceEth) < 5000000000) {
       console.log(`Faucet balance is below threshold. Sending ${amountToSend} ETH...`);
       
       const tx = await web3.eth.sendTransaction({

@@ -2,10 +2,12 @@
 
 This repository contains a simple educational blockchain environment with an Ethereum node, a network explorer, and a faucet for distributing test tokens to students.
 
+[Türkçe Dokümantasyon için aşağı kaydırın](#akadal-chain-eğitim-amaçlı-blockchain-ortamı)
+
 ## System Components
 
 1. **Ethereum Node (Geth)**: A full-featured EVM-compatible blockchain
-2. **Ethereum Network Stats**: A simple explorer to view blockchain activity
+2. **Ethereum Explorer**: A simple explorer to view blockchain activity
 3. **Custom Faucet**: A web UI to distribute test ETH to students
 
 ## Quick Start
@@ -100,7 +102,7 @@ Once the system is running, you can access the following services:
    - For manual funding, run:
      ```
      # On Windows
-     simple-fund.bat
+     fund-faucet.bat
      
      # On Linux/Mac
      ./fund-faucet.sh
@@ -154,4 +156,164 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgements
 
-Created by Assoc. Prof. Dr. Emre Akadal for educational purposes. 
+Created by Assoc. Prof. Dr. Emre Akadal for educational purposes.
+
+---
+
+# Akadal Chain: Eğitim Amaçlı Blockchain Ortamı
+
+Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü, ağ gezgini ve faucet içeren basit bir eğitim amaçlı blockchain ortamı içerir.
+
+## Sistem Bileşenleri
+
+1. **Ethereum Düğümü (Geth)**: Tam özellikli EVM uyumlu blockchain
+2. **Ethereum Gezgini**: Blockchain aktivitesini görüntülemek için basit bir gezgin
+3. **Özel Faucet**: Öğrencilere test ETH dağıtmak için web arayüzü
+
+## Hızlı Başlangıç
+
+### Ön Koşullar
+
+- Sisteminizde Docker ve Docker Compose kurulu olmalı
+- En az 2GB RAM, 2 vCPU ve 40GB SSD depolama alanı
+- Node.js (sonsuz faucet fonlaması için)
+
+### Kurulum
+
+1. Bu depoyu klonlayın:
+   ```
+   git clone https://github.com/yourusername/akadal-chain.git
+   cd akadal-chain
+   ```
+
+2. Sistemi başlatın:
+   ```
+   # Windows'ta
+   simple-fund.bat
+   
+   # Linux/Mac'te
+   ./start.sh
+   ```
+
+3. (İsteğe bağlı) Sonsuz faucet fonlamasını etkinleştirin:
+   ```
+   # Windows'ta
+   infinite-fund.bat
+   
+   # Linux/Mac'te
+   ./infinite-fund.sh
+   ```
+
+### Erişim Noktaları
+
+Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsiniz:
+
+- **Faucet**: http://localhost:3000
+- **Ağ Gezgini**: http://localhost:8080
+- **Ethereum RPC**: http://localhost:8545
+
+## Kullanım Talimatları
+
+### Öğrenciler İçin
+
+1. **MetaMask'ı Akadal Chain ile Ayarlayın**
+   - MetaMask tarayıcı uzantısını yükleyin
+   - MetaMask'ı açın ve "Ağ Ekle"yi seçin
+   - Ağ detaylarını girin:
+     - Ağ Adı: Akadal Chain
+     - RPC URL: http://localhost:8545
+     - Zincir ID: 1337
+     - Para Birimi Sembolü: ETH
+
+2. **Test ETH İsteyin**
+   - Faucet URL'sine gidin (http://localhost:3000)
+   - MetaMask cüzdan adresinizi girin
+   - "Request Tokens" düğmesine tıklayın
+   - Onay için bekleyin
+
+3. **Token Alımını Doğrulayın**
+   - Test ETH bakiyenizi görmek için MetaMask'ı açın
+   - Ağ aktivitesini görüntülemek için gezgini kontrol edin (http://localhost:8080)
+
+4. **Zincir ile Etkileşime Geçin**
+   - Akıllı sözleşmeler dağıtın ve test edin
+   - İşlemler gerçekleştirin
+   - Yerel düğümünüze bağlı Remix IDE gibi araçları kullanın
+   - Gezginde blockchain aktivitesini izleyin
+
+### Eğitmenler İçin
+
+1. **Sistem Durumunu İzleyin**
+   - Container durumunu kontrol edin: `docker-compose ps`
+   - Logları görüntüleyin: `docker-compose logs -f [servis]`
+   - Gezgin aracılığıyla blockchain aktivitesini izleyin (http://localhost:8080)
+
+2. **Faucet Fonlarını Yönetin**
+   - Faucet, sistem başlangıcında otomatik olarak fonlanır
+   - Sınırsız fonlama için, sonsuz fonlama servisini çalıştırın:
+     ```
+     # Windows'ta
+     infinite-fund.bat
+     
+     # Linux/Mac'te
+     ./infinite-fund.sh
+     ```
+   - Bu servis, faucet bakiyesini izleyecek ve gerektiğinde otomatik olarak yeniden dolduracaktır
+   - Manuel fonlama için şunu çalıştırın:
+     ```
+     # Windows'ta
+     fund-faucet.bat
+     
+     # Linux/Mac'te
+     ./fund-faucet.sh
+     ```
+
+3. **Sistem Bakımı**
+   - Sistemi güncelleyin: `docker-compose pull && docker-compose up -d`
+   - Gerekirse servisleri yeniden başlatın: `docker-compose restart [servis]`
+   - Tüm servisleri durdurun: `docker-compose down`
+   - Servisleri durdurun ve hacimleri kaldırın: `docker-compose down -v` (dikkat: bu, tüm blockchain verilerini silecektir)
+
+## Sorun Giderme
+
+### Yaygın Sorunlar
+
+1. **Servisler başlamıyor**
+   - Logları kontrol edin: `docker-compose logs -f`
+   - Yeterli sistem kaynağınız olduğundan emin olun
+   - Gerekli portların kullanılabilir olduğunu doğrulayın
+
+2. **Gezgin veri göstermiyor**
+   - Gezginin Ethereum düğümüne bağlanması birkaç dakika sürebilir
+   - Gezgin loglarını kontrol edin: `docker-compose logs -f explorer`
+   - Gezgini yeniden başlatın: `docker-compose restart explorer`
+
+3. **Faucet ETH göndermiyor ("Faucet balance too low" hatası)**
+   - Sonsuz fonlama servisini çalıştırın:
+     ```
+     # Windows'ta
+     infinite-fund.bat
+     
+     # Linux/Mac'te
+     ./infinite-fund.sh
+     ```
+   - Faucet loglarını kontrol edin: `docker-compose logs -f faucet`
+   - Ethereum düğümünün faucet container'ından erişilebilir olduğunu doğrulayın
+   - Faucet'i yeniden başlatın: `docker-compose restart faucet`
+
+## Çapraz Platform Uyumluluğu
+
+Bu sistem hem Windows hem de Linux/Mac ortamlarında çalışacak şekilde tasarlanmıştır:
+
+- **Windows**: Sistemi başlatmak ve yönetmek için `.bat` dosyalarını kullanın
+- **Linux/Mac**: Sistemi başlatmak ve yönetmek için `.sh` dosyalarını kullanın
+
+Temel işlevsellik tüm platformlarda aynıdır, yalnızca kabuk komut dosyaları platforma özgü gereksinimlere uyum sağlamak için farklılık gösterir.
+
+## Lisans
+
+Bu proje MIT Lisansı altında lisanslanmıştır - detaylar için LICENSE dosyasına bakın.
+
+## Teşekkürler
+
+Doç. Dr. Emre Akadal tarafından eğitim amaçlı olarak oluşturulmuştur. 
