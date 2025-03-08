@@ -1,10 +1,19 @@
 const { Web3 } = require('web3');
+const dotenv = require('dotenv');
 
-// Configuration
-const rpcUrl = 'http://localhost:8545';
-const faucetPrivateKey = '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
-const faucetAddress = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1';
-const amountToSend = '1000'; // 1000 ETH
+// Load environment variables from .env file
+dotenv.config();
+
+// Configuration from .env file
+const host = process.env.HOST_IP || 'localhost';
+const port = process.env.ETHEREUM_RPC_PORT || '8545';
+const rpcUrl = `http://${host === 'localhost' ? 'localhost' : 'ethereum'}:${port}`;
+const faucetPrivateKey = process.env.FUND_PRIVATE_KEY || '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
+const faucetAddress = process.env.FUND_ADDRESS || '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1';
+const amountToSend = process.env.ETH_AMOUNT || '1000'; // Default: 1000 ETH
+
+console.log(`Using RPC URL: ${rpcUrl}`);
+console.log(`Funding address: ${faucetAddress}`);
 
 async function initFaucet() {
   console.log('Initializing Faucet Account...');

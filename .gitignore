@@ -8,7 +8,7 @@ yarn-error.log
 data/
 
 # Environment variables
-.env
+# .env dosyasını artık ignore etmiyoruz, böylece repository'de bulunacak
 
 # Logs
 logs/

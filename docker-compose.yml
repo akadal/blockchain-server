@@ -97,10 +97,40 @@ services:
       BLOCKSCOUT_URL: "http://${HOST_IP}:${BLOCKSCOUT_PORT}"
       CREATOR_NAME: "${CREATOR_NAME}"
       CREATOR_URL: "${CREATOR_URL}"
+      ENABLE_HTTPS: "${ENABLE_HTTPS}"
     ports:
       - "${FAUCET_PORT}:3000"
     depends_on:
       - ethereum
+
+  # HTTPS Proxy - Nginx proxy for HTTPS support
+  https-proxy:
+    image: nginx:alpine
+    container_name: https-proxy
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/ssl:ro
+    ports:
+      - "${FAUCET_HTTPS_PORT}:443"
+      - "${EXPLORER_HTTPS_PORT}:443"
+      - "${BLOCKSCOUT_HTTPS_PORT}:443"
+      - "${HTTPS_PORT}:443"
+    depends_on:
+      - ethereum
+      - explorer
+      - blockscout
+      - faucet
+    environment:
+      - NGINX_HOST=${HOST_IP}
+    command: >
+      /bin/sh -c "
+        if [ ! -f /etc/nginx/ssl/server.crt ]; then
+          echo 'Error: SSL certificates not found. Please run generate-certs.sh or generate-certs.bat first.';
+          exit 1;
+        fi;
+        nginx -g 'daemon off;'
+      "
 
 volumes:
   geth-data:

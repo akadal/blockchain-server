@@ -1,10 +1,26 @@
 const { Web3 } = require('web3');
 const axios = require('axios');
+const dotenv = require('dotenv');
 
-// Configuration
-const rpcUrl = 'http://localhost:8545';
-const faucetUrl = 'http://localhost:3000';
-const explorerUrl = 'http://localhost:8080';
+// Load environment variables from .env file
+dotenv.config();
+
+// Configuration from .env file
+const host = process.env.HOST_IP || 'localhost';
+const ethereumPort = process.env.ETHEREUM_RPC_PORT || '8545';
+const faucetPort = process.env.FAUCET_PORT || '3000';
+const explorerPort = process.env.EXPLORER_PORT || '8080';
+const blockscoutPort = process.env.BLOCKSCOUT_PORT || '4000';
+
+const rpcUrl = `http://${host}:${ethereumPort}`;
+const faucetUrl = `http://${host}:${faucetPort}`;
+const explorerUrl = `http://${host}:${explorerPort}`;
+const blockscoutUrl = `http://${host}:${blockscoutPort}`;
+
+console.log(`Using RPC URL: ${rpcUrl}`);
+console.log(`Using Faucet URL: ${faucetUrl}`);
+console.log(`Using Explorer URL: ${explorerUrl}`);
+console.log(`Using Blockscout URL: ${blockscoutUrl}`);
 
 async function testSystem() {
   console.log('Testing Akadal Chain Educational Blockchain Environment...');
@@ -59,6 +75,17 @@ async function testSystem() {
     console.log(`   Explorer URL: ${explorerUrl}`);
   } catch (error) {
     console.log('❌ Failed to connect to Ethereum Explorer!');
+    console.error(`   Error: ${error.message}`);
+  }
+
+  // Test 4: Check if Blockscout Explorer is running
+  console.log('\n4. Testing Blockscout Explorer...');
+  try {
+    const response = await axios.get(blockscoutUrl);
+    console.log('✅ Blockscout Explorer is running!');
+    console.log(`   Blockscout URL: ${blockscoutUrl}`);
+  } catch (error) {
+    console.log('❌ Failed to connect to Blockscout Explorer!');
     console.error(`   Error: ${error.message}`);
   }
 

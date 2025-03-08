@@ -10,6 +10,7 @@ This repository contains a simple educational blockchain environment with an Eth
 2. **Ethereum Lite Explorer**: A simple explorer to view blockchain activity
 3. **Blockscout Explorer**: An advanced explorer with smart contract interaction capabilities
 4. **Custom Faucet**: A web UI to distribute test ETH to students
+5. **HTTPS Support**: Secure access to all services with SSL/TLS
 
 ## Quick Start
 
@@ -18,6 +19,7 @@ This repository contains a simple educational blockchain environment with an Eth
 - Docker and Docker Compose installed on your system
 - At least 2GB RAM, 2 vCPUs, and 40GB SSD storage
 - Node.js (for infinite faucet funding)
+- OpenSSL (for HTTPS certificate generation)
 
 ### Installation
 
@@ -27,18 +29,7 @@ This repository contains a simple educational blockchain environment with an Eth
    cd blockchain-server
    ```
 
-2. Configure the environment:
-   The system uses a `.env` file for configuration. A default file is provided with the repository.
-   
-   - For local development, you can use the default settings
-   - For deployment to a server, edit the `.env` file and change the `HOST_IP` to your server's IP address:
-     ```
-     # Change this to your server's IP address when deploying
-     HOST_IP=your-server-ip
-     ```
-   - You can also customize other settings like ports, network ID, and faucet configuration
-
-3. Start the system:
+2. Start the system:
    ```
    # On Windows
    simple-fund.bat
@@ -47,7 +38,9 @@ This repository contains a simple educational blockchain environment with an Eth
    ./start.sh
    ```
 
-4. (Optional) Enable infinite faucet funding:
+   > **Note for VPS Deployment**: If you're deploying to a server, edit the `.env` file first and change the `HOST_IP` to your server's public IP address before starting the system.
+
+3. (Optional) Enable infinite faucet funding:
    ```
    # On Windows
    infinite-fund.bat
@@ -60,27 +53,44 @@ This repository contains a simple educational blockchain environment with an Eth
 
 Once the system is running, you can access the following services:
 
+#### HTTP Access (Default)
 - **Faucet**: http://localhost:3000 (or http://your-server-ip:3000 if deployed)
 - **Ethereum Lite Explorer**: http://localhost:8080 (or http://your-server-ip:8080 if deployed)
 - **Blockscout Explorer**: http://localhost:4000 (or http://your-server-ip:4000 if deployed)
 - **Ethereum RPC**: http://localhost:8545 (or http://your-server-ip:8545 if deployed)
 
+#### HTTPS Access (When Enabled)
+- **Faucet**: https://localhost:3443 (or https://your-server-ip:3443 if deployed)
+- **Ethereum Lite Explorer**: https://localhost:8443 (or https://your-server-ip:8443 if deployed)
+- **Blockscout Explorer**: https://localhost:4443 (or https://your-server-ip:4443 if deployed)
+- **Ethereum RPC**: https://localhost:443 (or https://your-server-ip:443 if deployed)
+
+> **Note**: When using HTTPS with self-signed certificates, your browser will show security warnings. This is normal and you can proceed by accepting the risk. For production environments, consider using proper certificates from a trusted Certificate Authority.
+
 ## Configuration
 
 ### Environment Variables
 
-The system is configured using environment variables in the `.env` file. Here's what each variable does:
+The system is configured using environment variables in the `.env` file. The repository includes a default configuration file for local development. Here's what each variable does:
 
 ```
 # Network Configuration
 HOST_IP=localhost                # Use 'localhost' for local development, or your server's IP for remote access
 
+# HTTPS Configuration
+ENABLE_HTTPS=true                # Set to 'true' to enable HTTPS, 'false' to use HTTP only
+HTTPS_PORT=443                   # Main HTTPS port
+HTTPS_CERT_DIR=./certs           # Directory for SSL certificates
+
 # Ports Configuration
 ETHEREUM_RPC_PORT=8545           # Ethereum HTTP RPC port
 ETHEREUM_WS_PORT=8546            # Ethereum WebSocket port
-EXPLORER_PORT=8080               # Ethereum Lite Explorer port
-BLOCKSCOUT_PORT=4000             # Blockscout Explorer port
-FAUCET_PORT=3000                 # Faucet web interface port
+EXPLORER_PORT=8080               # Ethereum Lite Explorer HTTP port
+EXPLORER_HTTPS_PORT=8443         # Ethereum Lite Explorer HTTPS port
+BLOCKSCOUT_PORT=4000             # Blockscout Explorer HTTP port
+BLOCKSCOUT_HTTPS_PORT=4443       # Blockscout Explorer HTTPS port
+FAUCET_PORT=3000                 # Faucet web interface HTTP port
+FAUCET_HTTPS_PORT=3443           # Faucet web interface HTTPS port
 POSTGRES_PORT=5432               # PostgreSQL database port (for Blockscout)
 
 # Ethereum Node Configuration
@@ -102,6 +112,19 @@ CREATOR_NAME=...                 # Creator name displayed on the faucet UI
 CREATOR_URL=...                  # Creator URL displayed on the faucet UI
 ```
 
+### HTTPS Configuration
+
+The system supports HTTPS for secure access to all services. By default, HTTPS is enabled (`ENABLE_HTTPS=true` in the `.env` file).
+
+When HTTPS is enabled:
+1. Self-signed SSL certificates are automatically generated during the first startup
+2. All services are accessible via both HTTP and HTTPS
+3. The system uses Nginx as a reverse proxy to handle HTTPS connections
+
+To disable HTTPS, set `ENABLE_HTTPS=false` in the `.env` file.
+
+> **Note**: Self-signed certificates will cause security warnings in browsers. For production environments, replace the self-signed certificates with proper certificates from a trusted Certificate Authority.
+
 ### Deployment Configuration
 
 When deploying to a server:
@@ -119,20 +142,20 @@ When deploying to a server:
    - Open MetaMask and select "Add Network"
    - Enter the network details:
      - Network Name: Akadal Chain
-     - RPC URL: http://localhost:8545 (or http://your-server-ip:8545 if using a remote server)
+     - RPC URL: http://localhost:8545 or https://localhost:443 (or your server IP if using a remote server)
      - Chain ID: 1337
      - Currency Symbol: ETH
 
 2. **Request Test ETH**
-   - Navigate to the faucet URL (http://localhost:3000 or http://your-server-ip:3000)
+   - Navigate to the faucet URL (http://localhost:3000 or https://localhost:3443, or your server IP)
    - Enter your MetaMask wallet address
    - Click "Request Tokens"
    - Wait for confirmation
 
 3. **Verify Receipt of Tokens**
    - Open MetaMask to see your test ETH balance
-   - Check the explorer (http://localhost:8080 or http://your-server-ip:8080) to view network activity
-   - Alternatively, use Blockscout Explorer (http://localhost:4000 or http://your-server-ip:4000)
+   - Check the explorer to view network activity
+   - Alternatively, use Blockscout Explorer
 
 4. **Interact with the Chain**
    - Deploy and test smart contracts
@@ -242,33 +265,33 @@ When deploying to a server:
    - Check explorer logs: `docker-compose logs -f explorer` or `docker-compose logs -f blockscout`
    - Restart the explorers: `docker-compose restart explorer` or `docker-compose restart blockscout`
 
-3. **Faucet not sending ETH ("Faucet balance too low" error)**
-   - Run the infinite funding service:
-     ```
-     # On Windows
-     infinite-fund.bat
-     
-     # On Linux/Mac
-     ./infinite-fund.sh
-     ```
+3. **HTTPS certificate issues**
+   - If you see certificate errors in your browser, this is normal for self-signed certificates
+   - You can proceed by accepting the risk in your browser
+   - Check if certificates were generated correctly: `ls -la ./certs`
+   - If certificates are missing, run `./generate-certs.sh` or `generate-certs.bat`
+   - For production, replace self-signed certificates with proper ones from a trusted CA
+
+4. **Faucet not sending ETH ("Faucet balance too low" error)**
+   - Run the infinite funding service
    - Check faucet logs: `docker-compose logs -f faucet`
    - Verify that the Ethereum node is accessible from the faucet container
    - Restart the faucet: `docker-compose restart faucet`
 
-4. **Remix cannot connect to the blockchain**
+5. **Remix cannot connect to the blockchain**
    - Ensure MetaMask is properly connected to Akadal Chain
    - Try using "Web3 Provider" in Remix instead of "Injected Provider"
    - Check that the Ethereum node is running with proper CORS settings
    - Verify the RPC endpoint is accessible from your browser
    - Try restarting the Ethereum node: `docker-compose restart ethereum`
 
-5. **Blockscout Explorer issues**
+6. **Blockscout Explorer issues**
    - The initial indexing may take some time
    - If the explorer is not showing data, check the logs: `docker-compose logs -f blockscout`
    - Ensure the PostgreSQL database is running: `docker-compose logs -f postgres`
    - Restart Blockscout if needed: `docker-compose restart blockscout`
 
-6. **Environment variables not being applied**
+7. **Environment variables not being applied**
    - Make sure your `.env` file is in the root directory of the project
    - Restart the entire system after changing the `.env` file: `docker-compose down && docker-compose up -d`
    - Check if Docker Compose is reading the variables: `docker-compose config`
@@ -306,6 +329,7 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
 2. **Ethereum Lite Explorer**: Blockchain aktivitesini görüntülemek için basit bir gezgin
 3. **Blockscout Explorer**: Akıllı kontratlarla etkileşim kurma özelliklerine sahip gelişmiş bir gezgin
 4. **Özel Faucet**: Öğrencilere test ETH dağıtmak için web arayüzü
+5. **HTTPS Desteği**: SSL/TLS ile tüm hizmetlere güvenli erişim
 
 ## Hızlı Başlangıç
 
@@ -314,6 +338,7 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
 - Sisteminizde Docker ve Docker Compose kurulu olmalı
 - En az 2GB RAM, 2 vCPU ve 40GB SSD depolama alanı
 - Node.js (sonsuz faucet fonlaması için)
+- OpenSSL (HTTPS sertifikası oluşturmak için)
 
 ### Kurulum
 
@@ -323,18 +348,7 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
    cd blockchain-server
    ```
 
-2. Ortamı yapılandırın:
-   Sistem, yapılandırma için bir `.env` dosyası kullanır. Depo ile birlikte varsayılan bir dosya sağlanmıştır.
-   
-   - Yerel geliştirme için varsayılan ayarları kullanabilirsiniz
-   - Bir sunucuya dağıtım yaparken, `.env` dosyasını düzenleyin ve `HOST_IP`'yi sunucunuzun IP adresine değiştirin:
-     ```
-     # Dağıtım yaparken bunu sunucunuzun IP adresine değiştirin
-     HOST_IP=sunucu-ip-adresiniz
-     ```
-   - Ayrıca portlar, ağ kimliği ve faucet yapılandırması gibi diğer ayarları da özelleştirebilirsiniz
-
-3. Sistemi başlatın:
+2. Sistemi başlatın:
    ```
    # Windows'ta
    simple-fund.bat
@@ -343,7 +357,9 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
    ./start.sh
    ```
 
-4. (İsteğe bağlı) Sonsuz faucet fonlamasını etkinleştirin:
+   > **VPS Dağıtımı için Not**: Eğer bir sunucuya dağıtım yapıyorsanız, sistemi başlatmadan önce `.env` dosyasını düzenleyin ve `HOST_IP` değerini sunucunuzun genel IP adresine değiştirin.
+
+3. (İsteğe bağlı) Sonsuz faucet fonlamasını etkinleştirin:
    ```
    # Windows'ta
    infinite-fund.bat
@@ -356,27 +372,44 @@ Bu depo, öğrencilere test token'ları dağıtmak için bir Ethereum düğümü
 
 Sistem çalışmaya başladıktan sonra, aşağıdaki hizmetlere erişebilirsiniz:
 
+#### HTTP Erişimi (Varsayılan)
 - **Faucet**: http://localhost:3000 (veya dağıtılmışsa http://sunucu-ip-adresiniz:3000)
 - **Ethereum Lite Explorer**: http://localhost:8080 (veya dağıtılmışsa http://sunucu-ip-adresiniz:8080)
 - **Blockscout Explorer**: http://localhost:4000 (veya dağıtılmışsa http://sunucu-ip-adresiniz:4000)
 - **Ethereum RPC**: http://localhost:8545 (veya dağıtılmışsa http://sunucu-ip-adresiniz:8545)
 
+#### HTTPS Erişimi (Etkinleştirildiğinde)
+- **Faucet**: https://localhost:3443 (veya dağıtılmışsa https://sunucu-ip-adresiniz:3443)
+- **Ethereum Lite Explorer**: https://localhost:8443 (veya dağıtılmışsa https://sunucu-ip-adresiniz:8443)
+- **Blockscout Explorer**: https://localhost:4443 (veya dağıtılmışsa https://sunucu-ip-adresiniz:4443)
+- **Ethereum RPC**: https://localhost:443 (veya dağıtılmışsa https://sunucu-ip-adresiniz:443)
+
+> **Not**: HTTPS kullanırken kendi imzalı sertifikalarınızı kullanıyorsanız, tarayıcınızda güvenlik uyarıları görünecektir. Bu normaldir ve riski kabul ederek devam edebilirsiniz. Üretim ortamları için, güvenilir bir Sertifika Yetkilisi tarafından sağlanan gerçek sertifikaları kullanın.
+
 ## Yapılandırma
 
 ### Çevre Değişkenleri
 
-Sistem, `.env` dosyasındaki çevre değişkenleri kullanılarak yapılandırılır. Her değişkenin işlevi şöyledir:
+Sistem, `.env` dosyasındaki çevre değişkenleri kullanılarak yapılandırılır. Depo, yerel geliştirme için varsayılan bir yapılandırma dosyası içerir. Her değişkenin işlevi şöyledir:
 
 ```
 # Ağ Yapılandırması
 HOST_IP=localhost                # Yerel geliştirme için 'localhost', uzaktan erişim için sunucu IP'nizi kullanın
 
+# HTTPS Yapılandırması
+ENABLE_HTTPS=true                # HTTPS'i 'true' olarak ayarlamak, 'false' olarak HTTP'i kullanmak için
+HTTPS_PORT=443                   # Ana HTTPS port
+HTTPS_CERT_DIR=./certs           # SSL sertifikaları için dizin
+
 # Port Yapılandırması
 ETHEREUM_RPC_PORT=8545           # Ethereum HTTP RPC portu
 ETHEREUM_WS_PORT=8546            # Ethereum WebSocket portu
-EXPLORER_PORT=8080               # Ethereum Lite Explorer portu
-BLOCKSCOUT_PORT=4000             # Blockscout Explorer portu
-FAUCET_PORT=3000                 # Faucet web arayüzü portu
+EXPLORER_PORT=8080               # Ethereum Lite Explorer HTTP portu
+EXPLORER_HTTPS_PORT=8443         # Ethereum Lite Explorer HTTPS portu
+BLOCKSCOUT_PORT=4000             # Blockscout Explorer HTTP portu
+BLOCKSCOUT_HTTPS_PORT=4443       # Blockscout Explorer HTTPS portu
+FAUCET_PORT=3000                 # Faucet web arayüzü HTTP portu
+FAUCET_HTTPS_PORT=3443           # Faucet web arayüzü HTTPS portu
 POSTGRES_PORT=5432               # PostgreSQL veritabanı portu (Blockscout için)
 
 # Ethereum Düğümü Yapılandırması
@@ -398,6 +431,19 @@ CREATOR_NAME=...                 # Faucet UI'da görüntülenen oluşturucu adı
 CREATOR_URL=...                  # Faucet UI'da görüntülenen oluşturucu URL'si
 ```
 
+### HTTPS Yapılandırması
+
+Sistem, tüm hizmetlere güvenli erişim için HTTPS desteği sunar. Varsayılan olarak, HTTPS etkindir (`ENABLE_HTTPS=true` in the `.env` file).
+
+HTTPS etkinleştirildiğinde:
+1. İlk başlangıçta kendi imzalı SSL sertifikaları otomatik olarak oluşturulur
+2. Tüm hizmetler hem HTTP hem de HTTPS üzerinden erişilebilir
+3. Sistem, HTTPS bağlantılarını işlemek için Nginx'i ters proxy olarak kullanır
+
+HTTPS'i devre dışı bırakmak için, `.env` dosyasında `ENABLE_HTTPS=false` ayarını kullanın.
+
+> **Not**: Kendi imzalı sertifikalar, tarayıcınızda güvenlik uyarıları gösterecektir. Üretim ortamları için, kendi imzalı sertifikaları güvenilir bir Sertifika Yetkilisi tarafından sağlanan gerçek sertifikalarla değiştirin.
+
 ### Dağıtım Yapılandırması
 
 Bir sunucuya dağıtım yaparken:
@@ -415,12 +461,12 @@ Bir sunucuya dağıtım yaparken:
    - MetaMask'ı açın ve "Ağ Ekle"yi seçin
    - Ağ detaylarını girin:
      - Ağ Adı: Akadal Chain
-     - RPC URL: http://localhost:8545 (veya uzak sunucu kullanıyorsanız http://sunucu-ip-adresiniz:8545)
+     - RPC URL: http://localhost:8545 or https://localhost:443 (veya uzak sunucu kullanıyorsanız http://sunucu-ip-adresiniz:8545)
      - Zincir ID: 1337
      - Para Birimi Sembolü: ETH
 
 2. **Test ETH İsteyin**
-   - Faucet URL'sine gidin (http://localhost:3000 veya http://sunucu-ip-adresiniz:3000)
+   - Faucet URL'sine gidin (http://localhost:3000 veya https://localhost:3443, veya sunucu IP)
    - MetaMask cüzdan adresinizi girin
    - "Request Tokens" düğmesine tıklayın
    - Onay için bekleyin
@@ -529,42 +575,42 @@ Bir sunucuya dağıtım yaparken:
 ### Yaygın Sorunlar
 
 1. **Servisler başlamıyor**
-   - Logları kontrol edin: `docker-compose logs -f`
-   - Yeterli sistem kaynağınız olduğundan emin olun
-   - Gerekli portların kullanılabilir olduğunu doğrulayın
+   - Check logs: `docker-compose logs -f`
+   - Ensure you have enough system resources
+   - Verify that all required ports are available
 
-2. **Gezgin veri göstermiyor**
-   - Gezginlerin Ethereum düğümüne bağlanması birkaç dakika sürebilir
-   - Gezgin loglarını kontrol edin: `docker-compose logs -f explorer` veya `docker-compose logs -f blockscout`
-   - Gezginleri yeniden başlatın: `docker-compose restart explorer` veya `docker-compose restart blockscout`
+2. **Explorer not showing data**
+   - It may take a few minutes for the explorers to connect to the Ethereum node
+   - Check explorer logs: `docker-compose logs -f explorer` or `docker-compose logs -f blockscout`
+   - Restart the explorers: `docker-compose restart explorer` or `docker-compose restart blockscout`
 
-3. **Faucet ETH göndermiyor ("Faucet balance too low" hatası)**
-   - Sonsuz fonlama servisini çalıştırın:
-     ```
-     # Windows'ta
-     infinite-fund.bat
-     
-     # Linux/Mac'te
-     ./infinite-fund.sh
-     ```
+3. **HTTPS sertifika sorunları**
+   - Eğer tarayıcınızda sertifika hataları görüyorsanız, bu normaldir kendi imzalı sertifikalar için
+   - Tarayıcıda riski kabul ederek devam edebilirsiniz
+   - Sertifikalar doğru şekilde oluşturulduğunu kontrol edin: `ls -la ./certs`
+   - Eğer sertifikalar eksikse, `./generate-certs.sh` veya `generate-certs.bat` çalıştırın
+   - Üretim için kendi imzalı sertifikaları güvenilir bir CA tarafından sağlanan gerçek sertifikalarla değiştirin
+
+4. **Faucet ETH göndermiyor ("Faucet balance too low" hatası)**
+   - Sonsuz fonlama servisini çalıştırın
    - Faucet loglarını kontrol edin: `docker-compose logs -f faucet`
    - Ethereum düğümünün faucet container'ından erişilebilir olduğunu doğrulayın
    - Faucet'i yeniden başlatın: `docker-compose restart faucet`
 
-4. **Remix blockchain'e bağlanamıyor**
+5. **Remix blockchain'e bağlanamıyor**
    - MetaMask'ın Akadal Chain'e düzgün şekilde bağlandığından emin olun
    - Remix'te "Injected Provider" yerine "Web3 Provider" kullanmayı deneyin
    - Ethereum düğümünün uygun CORS ayarlarıyla çalıştığını kontrol edin
    - RPC uç noktasının tarayıcınızdan erişilebilir olduğunu doğrulayın
    - Ethereum düğümünü yeniden başlatmayı deneyin: `docker-compose restart ethereum`
 
-5. **Blockscout Explorer sorunları**
+6. **Blockscout Explorer sorunları**
    - İlk indeksleme biraz zaman alabilir
    - Gezgin veri göstermiyorsa, logları kontrol edin: `docker-compose logs -f blockscout`
    - PostgreSQL veritabanının çalıştığından emin olun: `docker-compose logs -f postgres`
    - Gerekirse Blockscout'u yeniden başlatın: `docker-compose restart blockscout`
 
-6. **Çevre değişkenleri uygulanmıyor**
+7. **Çevre değişkenleri uygulanmıyor**
    - `.env` dosyanızın projenin kök dizininde olduğundan emin olun
    - `.env` dosyasını değiştirdikten sonra tüm sistemi yeniden başlatın: `docker-compose down && docker-compose up -d`
    - Docker Compose'un değişkenleri okuduğunu kontrol edin: `docker-compose config`

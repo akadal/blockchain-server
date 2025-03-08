@@ -1,10 +1,20 @@
 const { Web3 } = require('web3');
+const fs = require('fs');
+const dotenv = require('dotenv');
 
-// Configuration
-const rpcUrl = 'http://localhost:8545';
-const faucetAddress = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1';
+// Load environment variables from .env file
+dotenv.config();
+
+// Configuration from .env file
+const host = process.env.HOST_IP || 'localhost';
+const port = process.env.ETHEREUM_RPC_PORT || '8545';
+const rpcUrl = `http://${host === 'localhost' ? 'localhost' : 'ethereum'}:${port}`;
+const faucetAddress = process.env.FUND_ADDRESS || '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1';
 const amountToSend = '10000000000'; // 10 billion ETH
 const checkInterval = 60000; // 1 minute
+
+console.log(`Using RPC URL: ${rpcUrl}`);
+console.log(`Funding address: ${faucetAddress}`);
 
 // Connect to Ethereum node
 const web3 = new Web3(rpcUrl);

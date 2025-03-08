@@ -3,6 +3,7 @@ const { Web3 } = require('web3');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ const faucetName = process.env.FAUCET_NAME || 'Akadal Chain Faucet';
 const faucetDesc = process.env.FAUCET_DESCRIPTION || 'Blockchain course test tokens';
 const creatorName = process.env.CREATOR_NAME || 'Assoc. Prof. Dr. Emre Akadal';
 const creatorUrl = process.env.CREATOR_URL || 'https://akadal.tr';
+const enableHttps = process.env.ENABLE_HTTPS === 'true';
 
 // Web3 setup
 const web3 = new Web3(rpcUrl);
