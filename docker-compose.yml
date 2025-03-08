@@ -16,12 +16,12 @@ services:
       - --ws.addr=0.0.0.0
       - --ws.origins=*
       - --ws.api=eth,net,web3,personal,miner,admin,debug,txpool
-      - --networkid=1337
+      - --networkid=${NETWORK_ID}
       - --allow-insecure-unlock
       - --rpc.allow-unprotected-txs
     ports:
-      - "8545:8545"  # HTTP RPC
-      - "8546:8546"  # WS RPC
+      - "${ETHEREUM_RPC_PORT}:8545"  # HTTP RPC
+      - "${ETHEREUM_WS_PORT}:8546"  # WS RPC
     volumes:
       - geth-data:/root/.ethereum
       
@@ -30,9 +30,9 @@ services:
     image: alethio/ethereum-lite-explorer:latest
     container_name: eth-explorer
     environment:
-      - APP_NODE_URL=http://146.190.176.30:8545
+      - APP_NODE_URL=http://${HOST_IP}:${ETHEREUM_RPC_PORT}
     ports:
-      - "8080:80"
+      - "${EXPLORER_PORT}:80"
     depends_on:
       - ethereum
       
@@ -53,12 +53,12 @@ services:
       SECRET_KEY_BASE: "56NtB48ear7+wMSf0IQuWDAAazhpb31qyc7GiyspBP2vh7t5zlCsF5QDv76chXeN"
       PORT: 4000
       COIN: "ETH"
-      NETWORK: "Akadal Chain"
-      SUBNETWORK: "Blockchain Course"
+      NETWORK: "${BLOCKSCOUT_NETWORK_NAME}"
+      SUBNETWORK: "${BLOCKSCOUT_SUBNETWORK}"
       LOGO: "/images/blockscout_logo.svg"
-      CHAIN_ID: 1337
+      CHAIN_ID: ${NETWORK_ID}
     ports:
-      - "4000:4000"
+      - "${BLOCKSCOUT_PORT}:4000"
       
   # Database for Blockscout Explorer
   postgres:
@@ -70,7 +70,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: blockscout
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -87,16 +87,18 @@ services:
     container_name: eth-faucet
     environment:
       RPC_URL: http://ethereum:8545
-      CHAIN_ID: 1337
-      ETH_AMOUNT: "100"
-      FUND_PRIVATE_KEY: "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d"
-      FUND_ADDRESS: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1"
-      FAUCET_NAME: "Akadal Chain Faucet"
-      FAUCET_DESCRIPTION: "Blockchain course test tokens"
-      EXPLORER_URL: "http://146.190.176.30:8080"
-      BLOCKSCOUT_URL: "http://146.190.176.30:4000"
+      CHAIN_ID: ${NETWORK_ID}
+      ETH_AMOUNT: "${ETH_AMOUNT}"
+      FUND_PRIVATE_KEY: "${FUND_PRIVATE_KEY}"
+      FUND_ADDRESS: "${FUND_ADDRESS}"
+      FAUCET_NAME: "${FAUCET_NAME}"
+      FAUCET_DESCRIPTION: "${FAUCET_DESCRIPTION}"
+      EXPLORER_URL: "http://${HOST_IP}:${EXPLORER_PORT}"
+      BLOCKSCOUT_URL: "http://${HOST_IP}:${BLOCKSCOUT_PORT}"
+      CREATOR_NAME: "${CREATOR_NAME}"
+      CREATOR_URL: "${CREATOR_URL}"
     ports:
-      - "3000:3000"
+      - "${FAUCET_PORT}:3000"
     depends_on:
       - ethereum
 
