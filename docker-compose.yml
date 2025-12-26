@@ -143,44 +143,7 @@ services:
         limits:
           cpus: '0.2'
           memory: 128M
-
-  # HTTPS Proxy - Optional, mainly for local/VPS without Coolify
-  https-proxy:
-    image: nginx:alpine
-    container_name: https-proxy
-    restart: always
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/ssl:ro
-    ports:
-      - "${FAUCET_HTTPS_PORT:-3443}:443"
-      - "${EXPLORER_HTTPS_PORT:-8443}:443"
-      - "${BLOCKSCOUT_HTTPS_PORT:-4443}:443"
-      - "${HTTPS_PORT:-443}:443"
-    depends_on:
-      - ethereum
-      - explorer
-      - blockscout
-      - faucet
-    environment:
-      - NGINX_HOST=${HOST_IP:-localhost}
-    # Only run if ENABLE_HTTPS is true. We can't strictly disable via env in compose v3 without profiles, 
-    # but we can make it exit immediately if not needed or just leave it running with no ports exposed if not configured.
-    # For now, we keep it as is but add a check in command.
-    command: >
-      /bin/sh -c "
-        if [ \"${ENABLE_HTTPS}\" != \"true\" ]; then
-          echo 'HTTPS disabled by ENABLE_HTTPS env var. Sleeping...';
-          sleep infinity;
-        fi;
-        if [ ! -f /etc/nginx/ssl/server.crt ]; then
-          echo 'Error: SSL certificates not found. Please run generate-certs.sh or generate-certs.bat first.';
-          # Don't crash loop if certs missing, just sleep to allow debugging
-          sleep 3600;
-        else
-          nginx -g 'daemon off;';
-        fi
-      "
+  # HTTPS Proxy removed (Handled by Coolify/Reverse Proxy)
 
 volumes:
   geth-data:
