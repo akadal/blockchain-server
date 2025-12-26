@@ -552,10 +552,52 @@ if (!fs.existsSync(path.join(__dirname, 'public'))) {
 // Write HTML file
 fs.writeFileSync(path.join(__dirname, 'public', 'index.html'), htmlContent);
 
+// Auto-fund logic
+async function ensureFunds() {
+    try {
+        // Retry logic for node connection
+        try {
+            await web3.eth.net.isListening();
+        } catch (e) {
+            console.log('Ethereum node not ready for funding check, retrying in 5s...');
+            setTimeout(ensureFunds, 5000);
+            return;
+        }
+
+        const coinbase = await web3.eth.getCoinbase();
+        if (!coinbase) return;
+
+        const balance = await web3.eth.getBalance(account.address);
+        const threshold = web3.utils.toWei('5000', 'ether'); // Keep at least 5000 ETH
+
+        if (BigInt(balance) < BigInt(threshold)) {
+            console.log(`Faucet balance low (${web3.utils.fromWei(balance, 'ether')} ETH). Refilling from coinbase...`);
+            try {
+                // Send 10,000 ETH from coinbase to faucet
+                await web3.eth.sendTransaction({
+                    from: coinbase,
+                    to: account.address,
+                    value: web3.utils.toWei('10000', 'ether'),
+                    gas: 21000
+                });
+                console.log('Faucet refilled successfully!');
+            } catch (err) {
+                console.error('Failed to refill faucet:', err.message);
+            }
+        }
+    } catch (error) {
+        console.error('Auto-fund error:', error);
+    }
+}
+
 // Start server
 app.listen(port, () => {
     console.log(`Faucet server running at http://localhost:${port}`);
     console.log(`Connected to Ethereum node at ${rpcUrl}`);
     console.log(`Public RPC URL: ${process.env.PUBLIC_RPC_URL || 'Derived from RPC_URL'}`);
     console.log(`Faucet address: ${account.address}`);
+
+    // Start auto-funding loop
+    ensureFunds();
+    setInterval(ensureFunds, 60000); // Check every minute
 }); 
