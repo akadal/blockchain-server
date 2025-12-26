@@ -33,71 +33,73 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const publicRpcUrl = process.env.PUBLIC_RPC_URL || rpcUrl.replace('ethereum', 'localhost');
+
 // Routes
 app.get('/api/info', (req, res) => {
-  res.json({
-    networkName: faucetName,
-    description: faucetDesc,
-    rpcUrl: rpcUrl.replace('ethereum', 'localhost'),
-    chainId: chainId,
-    explorerUrl: explorerUrl,
-    blockscoutUrl: blockscoutUrl,
-    ethAmount: ethAmount,
-    faucetAddress: account.address,
-    creator: {
-      name: creatorName,
-      url: creatorUrl
-    }
-  });
+    res.json({
+        networkName: faucetName,
+        description: faucetDesc,
+        rpcUrl: publicRpcUrl,
+        chainId: chainId,
+        explorerUrl: explorerUrl,
+        blockscoutUrl: blockscoutUrl,
+        ethAmount: ethAmount,
+        faucetAddress: account.address,
+        creator: {
+            name: creatorName,
+            url: creatorUrl
+        }
+    });
 });
 
 app.post('/api/send', async (req, res) => {
-  const { wallet } = req.body;
-  
-  // Validate wallet address
-  if (!wallet || !/^0x[a-fA-F0-9]{40}$/i.test(wallet)) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Invalid wallet address' 
-    });
-  }
-  
-  try {
-    // Check balance of faucet
-    const balance = await web3.eth.getBalance(account.address);
-    const balanceEth = web3.utils.fromWei(balance, 'ether');
-    
-    const sendAmount = web3.utils.toWei(ethAmount, 'ether');
-    
-    if (BigInt(balance) < BigInt(sendAmount)) {
-      return res.status(400).json({
-        success: false,
-        message: `Faucet balance too low (${balanceEth} ETH). Please contact administrator.`
-      });
+    const { wallet } = req.body;
+
+    // Validate wallet address
+    if (!wallet || !/^0x[a-fA-F0-9]{40}$/i.test(wallet)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid wallet address'
+        });
     }
-    
-    // Send ETH
-    const tx = await web3.eth.sendTransaction({
-      from: account.address,
-      to: wallet,
-      value: sendAmount,
-      gas: 21000
-    });
-    
-    return res.json({ 
-      success: true, 
-      message: `${ethAmount} ETH has been sent to your wallet!`,
-      txHash: tx.transactionHash,
-      explorerUrl: `${explorerUrl}/tx/${tx.transactionHash}`,
-      blockscoutUrl: `${blockscoutUrl}/tx/${tx.transactionHash}`
-    });
-  } catch (error) {
-    console.error('Error sending ETH:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Failed to send ETH' 
-    });
-  }
+
+    try {
+        // Check balance of faucet
+        const balance = await web3.eth.getBalance(account.address);
+        const balanceEth = web3.utils.fromWei(balance, 'ether');
+
+        const sendAmount = web3.utils.toWei(ethAmount, 'ether');
+
+        if (BigInt(balance) < BigInt(sendAmount)) {
+            return res.status(400).json({
+                success: false,
+                message: `Faucet balance too low (${balanceEth} ETH). Please contact administrator.`
+            });
+        }
+
+        // Send ETH
+        const tx = await web3.eth.sendTransaction({
+            from: account.address,
+            to: wallet,
+            value: sendAmount,
+            gas: 21000
+        });
+
+        return res.json({
+            success: true,
+            message: `${ethAmount} ETH has been sent to your wallet!`,
+            txHash: tx.transactionHash,
+            explorerUrl: `${explorerUrl}/tx/${tx.transactionHash}`,
+            blockscoutUrl: `${blockscoutUrl}/tx/${tx.transactionHash}`
+        });
+    } catch (error) {
+        console.error('Error sending ETH:', error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to send ETH'
+        });
+    }
 });
 
 // Create HTML file for the faucet UI
@@ -544,7 +546,7 @@ const htmlContent = `
 
 // Create public directory and index.html
 if (!fs.existsSync(path.join(__dirname, 'public'))) {
-  fs.mkdirSync(path.join(__dirname, 'public'), { recursive: true });
+    fs.mkdirSync(path.join(__dirname, 'public'), { recursive: true });
 }
 
 // Write HTML file
@@ -552,7 +554,8 @@ fs.writeFileSync(path.join(__dirname, 'public', 'index.html'), htmlContent);
 
 // Start server
 app.listen(port, () => {
-  console.log(`Faucet server running at http://localhost:${port}`);
-  console.log(`Connected to Ethereum node at ${rpcUrl}`);
-  console.log(`Faucet address: ${account.address}`);
+    console.log(`Faucet server running at http://localhost:${port}`);
+    console.log(`Connected to Ethereum node at ${rpcUrl}`);
+    console.log(`Public RPC URL: ${process.env.PUBLIC_RPC_URL || 'Derived from RPC_URL'}`);
+    console.log(`Faucet address: ${account.address}`);
 }); 

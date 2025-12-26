@@ -1,10 +1,11 @@
-version: '3'
+version: '3.8'
 
 services:
   # Ethereum Node - Fast dev chain with preloaded ETH
   ethereum:
     image: ethereum/client-go:stable
     container_name: ethereum-node
+    restart: always
     command:
       - --dev
       - --http
@@ -16,34 +17,56 @@ services:
       - --ws.addr=0.0.0.0
       - --ws.origins=*
       - --ws.api=eth,net,web3,personal,miner,admin,debug,txpool
-      - --networkid=${NETWORK_ID}
+      - --networkid=${NETWORK_ID:-1337}
       - --allow-insecure-unlock
       - --rpc.allow-unprotected-txs
+      - --cache=512
     ports:
-      - "${ETHEREUM_RPC_PORT}:8545"  # HTTP RPC
-      - "${ETHEREUM_WS_PORT}:8546"  # WS RPC
+      - "${ETHEREUM_RPC_PORT:-8545}:8545"  # HTTP RPC
+      - "${ETHEREUM_WS_PORT:-8546}:8546"  # WS RPC
     volumes:
       - geth-data:/root/.ethereum
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8545"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       
   # Simple Block Explorer
   explorer:
     image: alethio/ethereum-lite-explorer:latest
     container_name: eth-explorer
+    restart: always
     environment:
-      - APP_NODE_URL=http://${HOST_IP}:${ETHEREUM_RPC_PORT}
+      - APP_NODE_URL=http://${HOST_IP:-localhost}:${ETHEREUM_RPC_PORT:-8545}
     ports:
-      - "${EXPLORER_PORT}:80"
+      - "${EXPLORER_PORT:-8080}:80"
     depends_on:
-      - ethereum
+      ethereum:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
       
-  # Blockscout Explorer - Advanced explorer with smart contract interaction
+  # Blockscout Explorer
   blockscout:
     image: blockscout/blockscout:latest
     container_name: blockscout-explorer
     restart: always
     depends_on:
-      - ethereum
-      - postgres
+      ethereum:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     environment:
       ETHEREUM_JSONRPC_VARIANT: 'geth'
       ETHEREUM_JSONRPC_HTTP_URL: http://ethereum:8545
@@ -53,12 +76,19 @@ services:
       SECRET_KEY_BASE: "56NtB48ear7+wMSf0IQuWDAAazhpb31qyc7GiyspBP2vh7t5zlCsF5QDv76chXeN"
       PORT: 4000
       COIN: "ETH"
-      NETWORK: "${BLOCKSCOUT_NETWORK_NAME}"
-      SUBNETWORK: "${BLOCKSCOUT_SUBNETWORK}"
+      NETWORK: "${BLOCKSCOUT_NETWORK_NAME:-Akadal Chain}"
+      SUBNETWORK: "${BLOCKSCOUT_SUBNETWORK:-Testnet}"
       LOGO: "/images/blockscout_logo.svg"
-      CHAIN_ID: ${NETWORK_ID}
+      CHAIN_ID: ${NETWORK_ID:-1337}
     ports:
-      - "${BLOCKSCOUT_PORT}:4000"
+      - "${BLOCKSCOUT_PORT:-4000}:4000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1536M
+        reservations:
+          memory: 512M
       
   # Database for Blockscout Explorer
   postgres:
@@ -70,40 +100,53 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: blockscout
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
       
-  # Faucet - Web UI to distribute test ETH to students
+  # Faucet
   faucet:
     build:
       context: ./faucet
       dockerfile: Dockerfile
     container_name: eth-faucet
+    restart: always
     environment:
       RPC_URL: http://ethereum:8545
-      CHAIN_ID: ${NETWORK_ID}
-      ETH_AMOUNT: "${ETH_AMOUNT}"
+      PUBLIC_RPC_URL: http://${HOST_IP:-localhost}:${ETHEREUM_RPC_PORT:-8545} # For frontend to connect
+      CHAIN_ID: ${NETWORK_ID:-1337}
+      ETH_AMOUNT: "${ETH_AMOUNT:-100}"
       FUND_PRIVATE_KEY: "${FUND_PRIVATE_KEY}"
       FUND_ADDRESS: "${FUND_ADDRESS}"
-      FAUCET_NAME: "${FAUCET_NAME}"
+      FAUCET_NAME: "${FAUCET_NAME:-Akadal Chain Faucet}"
       FAUCET_DESCRIPTION: "${FAUCET_DESCRIPTION}"
-      EXPLORER_URL: "http://${HOST_IP}:${EXPLORER_PORT}"
-      BLOCKSCOUT_URL: "http://${HOST_IP}:${BLOCKSCOUT_PORT}"
+      EXPLORER_URL: "http://${HOST_IP:-localhost}:${EXPLORER_PORT:-8080}"
+      BLOCKSCOUT_URL: "http://${HOST_IP:-localhost}:${BLOCKSCOUT_PORT:-4000}"
       CREATOR_NAME: "${CREATOR_NAME}"
       CREATOR_URL: "${CREATOR_URL}"
-      ENABLE_HTTPS: "${ENABLE_HTTPS}"
+      ENABLE_HTTPS: "${ENABLE_HTTPS:-true}"
     ports:
-      - "${FAUCET_PORT}:3000"
+      - "${FAUCET_PORT:-3000}:3000"
     depends_on:
-      - ethereum
+      ethereum:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
 
-  # HTTPS Proxy - Nginx proxy for HTTPS support
+  # HTTPS Proxy - Optional, mainly for local/VPS without Coolify
   https-proxy:
     image: nginx:alpine
     container_name: https-proxy
@@ -112,24 +155,33 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/ssl:ro
     ports:
-      - "${FAUCET_HTTPS_PORT}:443"
-      - "${EXPLORER_HTTPS_PORT}:443"
-      - "${BLOCKSCOUT_HTTPS_PORT}:443"
-      - "${HTTPS_PORT}:443"
+      - "${FAUCET_HTTPS_PORT:-3443}:443"
+      - "${EXPLORER_HTTPS_PORT:-8443}:443"
+      - "${BLOCKSCOUT_HTTPS_PORT:-4443}:443"
+      - "${HTTPS_PORT:-443}:443"
     depends_on:
       - ethereum
       - explorer
       - blockscout
       - faucet
     environment:
-      - NGINX_HOST=${HOST_IP}
+      - NGINX_HOST=${HOST_IP:-localhost}
+    # Only run if ENABLE_HTTPS is true. We can't strictly disable via env in compose v3 without profiles, 
+    # but we can make it exit immediately if not needed or just leave it running with no ports exposed if not configured.
+    # For now, we keep it as is but add a check in command.
     command: >
       /bin/sh -c "
+        if [ \"${ENABLE_HTTPS}\" != \"true\" ]; then
+          echo 'HTTPS disabled by ENABLE_HTTPS env var. Sleeping...';
+          sleep infinity;
+        fi;
         if [ ! -f /etc/nginx/ssl/server.crt ]; then
           echo 'Error: SSL certificates not found. Please run generate-certs.sh or generate-certs.bat first.';
-          exit 1;
-        fi;
-        nginx -g 'daemon off;'
+          # Don't crash loop if certs missing, just sleep to allow debugging
+          sleep 3600;
+        else
+          nginx -g 'daemon off;';
+        fi
       "
 
 volumes:
