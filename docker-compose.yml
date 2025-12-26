@@ -32,10 +32,11 @@ services:
         reservations:
           memory: 512M
     healthcheck:
-      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8545" ]
+      test: [ "CMD-SHELL", "wget -q --spider --proxy off http://127.0.0.1:8545 || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   # Simple Block Explorer
   explorer:
@@ -43,7 +44,7 @@ services:
     container_name: eth-explorer
     restart: always
     environment:
-      - APP_NODE_URL=http://${HOST_IP:-localhost}:${ETHEREUM_RPC_PORT:-8545}
+      - APP_NODE_URL=${APP_NODE_URL:-https://rpc.blockchain.akadal.tr}
     ports:
       - "${EXPLORER_PORT:-4040}:80"
     depends_on:
@@ -75,7 +76,7 @@ services:
       PORT: 4000
       COIN: "ETH"
       NETWORK: "${BLOCKSCOUT_NETWORK_NAME:-Akadal Chain}"
-      SUBNETWORK: "${BLOCKSCOUT_SUBNETWORK:-Testnet}"
+      SUBNETWORK: "${BLOCKSCOUT_SUBNETWORK:-Blockchain Course}"
       LOGO: "/images/blockscout_logo.svg"
       CHAIN_ID: ${NETWORK_ID:-1337}
     ports:
@@ -121,17 +122,17 @@ services:
     restart: always
     environment:
       RPC_URL: http://ethereum:8545
-      PUBLIC_RPC_URL: http://${HOST_IP:-localhost}:${ETHEREUM_RPC_PORT:-8545} # For frontend to connect
+      PUBLIC_RPC_URL: ${PUBLIC_RPC_URL:-https://rpc.blockchain.akadal.tr} # For frontend to connect
       CHAIN_ID: ${NETWORK_ID:-1337}
       ETH_AMOUNT: "${ETH_AMOUNT:-100}"
       FUND_PRIVATE_KEY: "${FUND_PRIVATE_KEY}"
       FUND_ADDRESS: "${FUND_ADDRESS}"
       FAUCET_NAME: "${FAUCET_NAME:-Akadal Chain Faucet}"
-      FAUCET_DESCRIPTION: "${FAUCET_DESCRIPTION}"
-      EXPLORER_URL: "http://${HOST_IP:-localhost}:${EXPLORER_PORT:-4040}"
-      BLOCKSCOUT_URL: "http://${HOST_IP:-localhost}:${BLOCKSCOUT_PORT:-4000}"
-      CREATOR_NAME: "${CREATOR_NAME}"
-      CREATOR_URL: "${CREATOR_URL}"
+      FAUCET_DESCRIPTION: "${FAUCET_DESCRIPTION:-Blockchain course test tokens}"
+      EXPLORER_URL: "${EXPLORER_URL:-https://explorer.blockchain.akadal.tr}"
+      BLOCKSCOUT_URL: "${BLOCKSCOUT_URL:-https://explorer.blockchain.akadal.tr}"
+      CREATOR_NAME: "${CREATOR_NAME:-Assoc. Prof. Dr. Emre Akadal}"
+      CREATOR_URL: "${CREATOR_URL:-https://akadal.tr}"
       ENABLE_HTTPS: "${ENABLE_HTTPS:-true}"
     ports:
       - "${FAUCET_PORT:-3000}:3000"
