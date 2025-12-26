@@ -17,13 +17,12 @@ services:
       - --ws.addr=0.0.0.0
       - --ws.origins=*
       - --ws.api=eth,net,web3,personal,miner,admin,debug,txpool
-      - --networkid=${NETWORK_ID:-1337}
-      - --allow-insecure-unlock
+      - --ws.api=eth,net,web3,personal,miner,admin,debug,txpool
       - --rpc.allow-unprotected-txs
       - --cache=512
     ports:
-      - "${ETHEREUM_RPC_PORT:-8545}:8545"  # HTTP RPC
-      - "${ETHEREUM_WS_PORT:-8546}:8546"  # WS RPC
+      - "${ETHEREUM_RPC_PORT:-8545}:8545" # HTTP RPC
+      - "${ETHEREUM_WS_PORT:-8546}:8546" # WS RPC
     volumes:
       - geth-data:/root/.ethereum
     deploy:
@@ -34,11 +33,11 @@ services:
         reservations:
           memory: 512M
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8545"]
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8545" ]
       interval: 10s
       timeout: 5s
       retries: 5
-      
+
   # Simple Block Explorer
   explorer:
     image: alethio/ethereum-lite-explorer:latest
@@ -56,7 +55,7 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-      
+
   # Blockscout Explorer
   blockscout:
     image: blockscout/blockscout:latest
@@ -89,7 +88,7 @@ services:
           memory: 1536M
         reservations:
           memory: 512M
-      
+
   # Database for Blockscout Explorer
   postgres:
     image: postgres:14-alpine
@@ -109,11 +108,11 @@ services:
           cpus: '0.5'
           memory: 512M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
-      
+
   # Faucet
   faucet:
     build:
@@ -186,4 +185,4 @@ services:
 
 volumes:
   geth-data:
-  postgres-data: 
+  postgres-data:
